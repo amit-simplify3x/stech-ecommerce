@@ -18,7 +18,9 @@ const initialState: ProductsState = {
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async () => {
-    const response = await fetch("/products.json");
+    // Use BASE_URL to create the correct path for both local dev and deployment
+    const path = `${import.meta.env.BASE_URL}products.json`;
+    const response = await fetch(path);
     const data = await response.json();
     return data as Product[];
   }

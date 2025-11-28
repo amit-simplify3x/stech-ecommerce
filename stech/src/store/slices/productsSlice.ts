@@ -1,7 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Product } from '../../types';
-import productsData from '../../../products.json'
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { Product } from "../../types";
 
 interface ProductsState {
   items: Product[];
@@ -15,17 +14,18 @@ const initialState: ProductsState = {
   error: null,
 };
 
-// Simulate API call with delay
+// Fetch products from the public directory
 export const fetchProducts = createAsyncThunk(
-  'products/fetchProducts',
+  "products/fetchProducts",
   async () => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return productsData as Product[];
+    const response = await fetch("/products.json");
+    const data = await response.json();
+    return data as Product[];
   }
 );
 
 const productsSlice = createSlice({
-  name: 'products',
+  name: "products",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -34,16 +34,18 @@ const productsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-        state.loading = false;
-        state.items = action.payload;
-      })
+      .addCase(
+        fetchProducts.fulfilled,
+        (state, action: PayloadAction<Product[]>) => {
+          state.loading = false;
+          state.items = action.payload;
+        }
+      )
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch products';
+        state.error = action.error.message || "Failed to fetch products";
       });
   },
 });
 
 export default productsSlice.reducer;
-
